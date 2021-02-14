@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -66,7 +67,13 @@ class SaveReminderFragment : BaseFragment() {
             val latitude = _viewModel.latitude.value
             val longitude = _viewModel.longitude.value
             val rDTo = ReminderDTO(title = title, description = description, latitude = latitude, longitude = longitude, location = location)
-            addGeofence(rDTo)
+            if (rDTo.latitude !=null && rDTo.longitude!=null) {
+                addGeofence(rDTo)
+            }
+            Log.i("Durum",_viewModel.latitude.value.toString())
+            Log.i("Durum2",_viewModel.longitude.value.toString())
+            Log.i("Durum3",rDTo.latitude.toString())
+            Log.i("Durum4",rDTo.longitude.toString())
         }
 
 
@@ -92,15 +99,22 @@ class SaveReminderFragment : BaseFragment() {
                 .setExpirationDuration(Geofence.NEVER_EXPIRE)
                 .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
                 .build()
+
         val geoReq = GeofencingRequest.Builder()
                 .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
                 .addGeofence(geofence)
                 .build()
         geofencingClient.addGeofences(geoReq, geofencePendingIntent).run {
             addOnSuccessListener {
-
+                Log.i("GEOfenciAdd","Added")
                 if (_viewModel.validateEnteredData(rDTO)) {
                     _viewModel.saveReminder(rDTO)
+                }
+            }
+            addOnFailureListener {
+                if (it.message!=null) {
+                    Log.i("Durum5",it.message!!)
+                    Log.i("Durum6","Error geofence")
                 }
             }
         }

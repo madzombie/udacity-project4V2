@@ -126,6 +126,13 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
     }
     private fun setOnMapClick(googleMap: GoogleMap) {
         googleMap.setOnMapClickListener { latLong ->
+            binding.buttonSave.visibility=View.VISIBLE
+            binding.buttonSave.setOnClickListener {
+                _viewModel.latitude.value=latLong.latitude
+                _viewModel.longitude.value=latLong.longitude
+                _viewModel.reminderSelectedLocationStr.value="Custom Location"
+                findNavController().popBackStack()
+            }
             val snippet = String.format(
                     Locale.getDefault(),
                     getString(R.string.lat_long_snippet),
@@ -140,6 +147,7 @@ class SelectLocationFragment : BaseFragment() , OnMapReadyCallback{
                             .snippet(snippet)
             )
             marker.showInfoWindow()
+
             enableSaveButton()
         }
         googleMap.setOnPoiClickListener { poi ->
